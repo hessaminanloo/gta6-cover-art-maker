@@ -1,6 +1,6 @@
-// Wires the page: load photos, pick a layout and grade, edit the caption, drag and
-// zoom each panel's photo in the preview, and export the cover as a PNG in the
-// three post sizes. A `?shot=` query sets up a fixed scene for a screenshot
+// Wires the page: load photos, pick a layout and grade, edit the caption, drag
+// and zoom each panel's photo in the preview, and export the cover as a PNG in
+// the three post sizes. A `?shot=` query sets up a fixed scene for a screenshot
 // instead (./shots.js). Photos are read on the user's machine and never uploaded.
 import { drawCover } from './cover.js';
 import { runShot } from './shots.js';
@@ -12,11 +12,11 @@ const captionInput = document.getElementById('caption');
 const subtitleInput = document.getElementById('subtitle');
 const status = document.getElementById('status');
 const state = freshState();
-// The editor shows which panel is selected with a dashed outline; a cover scene
+// The editor marks the selected panel with a dashed outline; a cover scene
 // (a screenshot of the exported cover) never does.
 let previewSelection = true;
 
-/** Loads an image from a URL, resolving to the image once it can be drawn. */
+/** Loads an image from a URL, resolving once it can be drawn. */
 export function loadImage(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -48,6 +48,10 @@ export async function exportCover(sizeId) {
   state.size = savedSize;
   redraw();
   const blob = await new Promise((resolve) => off.toBlob(resolve, 'image/png'));
+  if (!blob) {
+    setStatus('Export failed — the cover could not be written.');
+    return null;
+  }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `neon-coast-cover-${size.w}x${size.h}.png`;
@@ -143,7 +147,7 @@ document.getElementById('fillAll').addEventListener('click', () => {
   redraw();
 });
 
-// --- layout, grade, caption controls ----------------------------------------
+// --- layout, grade and caption controls --------------------------------------
 
 const layoutsEl = document.getElementById('layouts');
 LAYOUTS.forEach((layout) => {
@@ -204,7 +208,7 @@ document.getElementById('showBadge').addEventListener('change', (e) => {
   redraw();
 });
 
-// --- selected panel ----------------------------------------------------------
+// --- the selected panel ------------------------------------------------------
 
 const panelPhotosEl = document.getElementById('panelPhotos');
 const zoomInput = document.getElementById('zoom');

@@ -38,8 +38,8 @@ are read on your own machine — never uploaded.
 Everything here is original: no game logos, wordmarks, official artwork or
 fonts. The display type is Anton and Pacifico, both under the SIL Open Font
 License, vendored with their licence texts under `app/fonts/`. The two sample
-photos under `app/samples/` were made for make.fun with an image model and are
-free to use.
+photos under `app/samples/` were made with an image model for this entry and
+are free to use.
 
 ## Files
 
@@ -52,7 +52,9 @@ free to use.
 - `app/src/shots.js` — fixed `?shot=` scenes for the screenshots
 - `main.ts` — the make.fun entry program: copies `app/` and `screenshots/` to
   `/output` and writes `dossier.json`
-- `screenshots/` — the cover and the editor, captured from the app itself
+- `screenshots/` — the cover and the editor, captured from the app itself.
+  The cover shots are the PNGs the app exported, scaled down to fit the
+  256 KiB / 1280 px limits; nothing in them was edited or composited.
 
 ## License
 

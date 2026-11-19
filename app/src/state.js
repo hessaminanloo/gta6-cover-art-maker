@@ -1,6 +1,9 @@
-// The cover's state: which photos are loaded, how each panel is filled, the layout,
-// the colour grade, the lettering and the export size. Photos live only in memory
-// (object URLs from the user's machine), so nothing is ever uploaded.
+// The cover's state: which photos are loaded, how each panel is filled, the
+// layout, the colour grade, the lettering and the export size. Photos live only
+// in memory (object URLs from the user's own machine), so a photo is never
+// uploaded anywhere.
+
+/** The five panel layouts the editor offers. */
 export const LAYOUTS = [
   { id: 'hero', label: 'Hero + Three' },
   { id: 'grid', label: 'Four Panels' },
@@ -9,6 +12,7 @@ export const LAYOUTS = [
   { id: 'snapshots', label: 'Snapshots' },
 ];
 
+/** The five colour grades the editor offers. */
 export const GRADES = [
   { id: 'sunset', label: 'Vice Sunset' },
   { id: 'neon', label: 'Neon Nights' },
@@ -17,21 +21,22 @@ export const GRADES = [
   { id: 'noir', label: 'Noir Nights' },
 ];
 
+/** The three post sizes the cover exports to. */
 export const SIZES = [
   { id: 'square', label: 'Square · 1080 × 1080', w: 1080, h: 1080 },
   { id: 'portrait', label: 'Portrait · 1080 × 1350', w: 1080, h: 1350 },
   { id: 'wide', label: 'Wide · 1920 × 1080', w: 1920, h: 1080 },
 ];
 
-/** One panel's photo placement: which photo, how far zoomed, how far panned. */
+/** A fresh placement for one panel: which photo, at what zoom and pan. */
 export function freshPanel(photoIndex) {
   return { photo: photoIndex, zoom: 1, dx: 0, dy: 0 };
 }
 
-/** The default cover: hero layout, sunset grade, no photos yet. */
+/** A fresh cover: hero layout, sunset grade, no photos loaded yet. */
 export function freshState() {
   return {
-    photos: [], // { img, name, url }
+    photos: [], // each { img, name, url }
     layout: 'hero',
     grade: 'sunset',
     gradeStrength: 0.85,
@@ -40,23 +45,30 @@ export function freshState() {
     titleScale: 1,
     showBadge: true,
     size: 'square',
-    panels: [freshPanel(0), freshPanel(1), freshPanel(2), freshPanel(0)],
+    // Panels start empty (null photo) so nothing points at a photo that does
+    // not exist yet; the first loaded photo fills them.
+    panels: [freshPanel(null), freshPanel(null), freshPanel(null), freshPanel(null)],
     selected: 0,
   };
 }
 
-/** How many panels the current layout shows (snapshots and bleed use fewer). */
+/** How many panels a layout shows: bleed has one, triptych and snapshots three, the rest four. */
 export function panelCount(layout) {
-  if (layout === 'bleed') return 1;
-  if (layout === 'triptych') return 3;
-  if (layout === 'snapshots') return 3;
-  return 4; // hero and grid
+  switch (layout) {
+    case 'bleed': return 1;
+    case 'triptych':
+    case 'snapshots': return 3;
+    default: return 4;
+  }
 }
 
-/** Keep the panels array in step when the layout changes. */
+/** Grow or shrink the panels array so it matches the current layout. */
 export function syncPanels(state) {
-  const n = panelCount(state.layout);
-  while (state.panels.length < n) state.panels.push(freshPanel(state.panels.length % Math.max(1, state.photos.length)));
-  state.panels.length = n;
-  if (state.selected >= n) state.selected = 0;
+  const want = panelCount(state.layout);
+  while (state.panels.length < want) {
+    const fallback = state.photos.length ? state.panels.length % state.photos.length : 0;
+    state.panels.push(freshPanel(fallback));
+  }
+  state.panels.length = want;
+  if (state.selected >= want) state.selected = 0;
 }

@@ -1,7 +1,7 @@
 // Fixed scenes for screenshots: ?shot=editor shows the page with sample photos
-// loaded; ?shot=cover shows the cover alone, full frame. The cover scene draws with
-// the app's own renderer, so the screenshot shows exactly what the app exports.
-// window.__shotReady is set once the scene has painted.
+// loaded; ?shot=cover shows the cover alone, full frame. The cover scene draws
+// with the app's own renderer, so the screenshot shows exactly what the app
+// exports. window.__shotReady is set once the scene has painted.
 export async function runShot(shot, query, load) {
   // Wait for the vendored display fonts so the lettering draws as it really looks.
   try {

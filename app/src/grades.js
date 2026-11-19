@@ -1,6 +1,6 @@
-// Colour grades: a sunset or neon wash laid over the photos, the sky behind the
-// panels, and the colours of the title lettering. All original — nothing taken
-// from any game.
+// Colour grades: a sunset or neon wash over the photos, the sky behind the
+// panels, and the colours of the title lettering. All of it original —
+// nothing taken from any game.
 export const GRADES = {
   sunset: {
     label: 'Vice Sunset',
@@ -8,7 +8,7 @@ export const GRADES = {
     filter: 'saturate(1.28) contrast(1.08) brightness(1.02)',
     washTop: '#ff9a3d',
     washBottom: '#ff2e88',
-    washAlpha: 0.30,
+    washAlpha: 0.3,
     title: ['#ffe259', '#ffa751', '#ff2e63'],
     titleStroke: '#2b0a3d',
     sub: '#7df9ff',
@@ -20,7 +20,7 @@ export const GRADES = {
     filter: 'saturate(1.45) contrast(1.14) brightness(1.0)',
     washTop: '#00f5d4',
     washBottom: '#ff2e88',
-    washAlpha: 0.40,
+    washAlpha: 0.4,
     title: ['#00f5d4', '#ff2e88', '#fee440'],
     titleStroke: '#0b0620',
     sub: '#fee440',
@@ -44,7 +44,7 @@ export const GRADES = {
     filter: 'saturate(1.35) contrast(1.1) brightness(1.03)',
     washTop: '#2ec4b6',
     washBottom: '#ff5e78',
-    washAlpha: 0.30,
+    washAlpha: 0.3,
     title: ['#caf0f8', '#2ec4b6', '#ff5e78'],
     titleStroke: '#04263b',
     sub: '#ff8fa3',
@@ -64,7 +64,7 @@ export const GRADES = {
   },
 };
 
-/** Looks a grade up by id, falling back to the sunset grade. */
+/** A grade by id, with the sunset grade as the fallback. */
 export function gradeById(id) {
   return GRADES[id] ?? GRADES.sunset;
 }

@@ -1,14 +1,15 @@
-// Draws the cover onto a canvas: the sky, the photo panels with their grade, the
-// retro sun, grain and vignette, and the title block with its display lettering.
-// The same drawing serves the live preview and the exported PNG — the export just
-// draws it bigger. Original art direction throughout: no game logos, artwork or fonts.
+// Draws the cover onto a canvas: the sky, the photo panels with their grade,
+// the retro sun, grain and vignette, and the title block with its display
+// lettering. One drawing serves both the live preview and the exported PNG —
+// the export simply draws it bigger. Original art direction throughout: no game
+// logos, artwork or fonts.
 import { layoutPanels, titleBand } from './layouts.js';
 import { gradeById } from './grades.js';
 import { SIZES } from './state.js';
 
 let grainTile = null;
 
-/** A small tile of random grey noise, reused for the grain overlay. */
+/** A small tile of grey noise, made once and reused for the grain overlay. */
 export function makeGrainTile() {
   if (grainTile) return grainTile;
   const tile = document.createElement('canvas');
@@ -28,36 +29,54 @@ export function makeGrainTile() {
   return tile;
 }
 
+/** Turns '#rrggbb' into an rgba() string with the given alpha. */
+export function hexWithAlpha(hex, alpha) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  const a = Math.max(0, Math.min(1, alpha));
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
 /** Draws one photo into a panel rect, cover-fit, with the panel's zoom and pan. */
 export function drawPhotoInto(ctx, img, rect, panel, grade, strength) {
   if (!img) return false;
   const iw = img.naturalWidth;
   const ih = img.naturalHeight;
   if (!iw || !ih) return false;
+
+  // Cover-fit, then the panel's own zoom on top of it.
   const base = Math.max(rect.w / iw, rect.h / ih);
   const scale = base * (panel?.zoom ?? 1);
   const pw = iw * scale;
   const ph = ih * scale;
-  // Clamp the pan so the photo always covers the panel — no empty gaps.
-  const maxDx = Math.max(0, (pw - rect.w) / 2 / rect.w);
-  const maxDy = Math.max(0, (ph - rect.h) / 2 / rect.h);
+
+  // Clamp the pan so the photo always covers the panel, with no empty gaps.
+  const maxDx = Math.max(0, ((pw - rect.w) / 2) / rect.w);
+  const maxDy = Math.max(0, ((ph - rect.h) / 2) / rect.h);
   const dx = Math.max(-maxDx, Math.min(maxDx, panel?.dx ?? 0));
   const dy = Math.max(-maxDy, Math.min(maxDy, panel?.dy ?? 0));
   const cx = rect.x + rect.w / 2 + dx * rect.w;
   const cy = rect.y + rect.h / 2 + dy * rect.h;
+
   ctx.save();
   ctx.beginPath();
   ctx.rect(rect.x, rect.y, rect.w, rect.h);
   ctx.clip();
   ctx.filter = grade.filter;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(img, cx - pw / 2, cy - ph / 2, pw, ph);
   ctx.filter = 'none';
-  // Sunset / neon wash over the photo, stronger toward the foot.
+
+  // A sunset or neon wash over the photo, stronger toward the foot.
   const wash = ctx.createLinearGradient(0, rect.y, 0, rect.y + rect.h);
   wash.addColorStop(0, hexWithAlpha(grade.washTop, grade.washAlpha * 0.35 * strength));
   wash.addColorStop(1, hexWithAlpha(grade.washBottom, grade.washAlpha * strength));
   ctx.fillStyle = wash;
   ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+
   // A little depth at the foot of the photo.
   const shade = ctx.createLinearGradient(0, rect.y + rect.h * 0.6, 0, rect.y + rect.h);
   shade.addColorStop(0, 'rgba(10, 4, 24, 0)');
@@ -68,7 +87,7 @@ export function drawPhotoInto(ctx, img, rect, panel, grade, strength) {
   return true;
 }
 
-/** A panel with no photo yet: dark sky with a clear "add a photo" cue. */
+/** A panel with no photo yet: dark sky and a clear "add a photo" cue. */
 export function drawEmptyPanel(ctx, rect) {
   ctx.save();
   const g = ctx.createLinearGradient(rect.x, rect.y, rect.x + rect.w, rect.y + rect.h);
@@ -119,7 +138,10 @@ export function drawGrainAndVignette(ctx, w, h) {
   ctx.fillStyle = ctx.createPattern(makeGrainTile(), 'repeat');
   ctx.fillRect(0, 0, w, h);
   ctx.globalAlpha = 1;
-  const v = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.42, w / 2, h / 2, Math.max(w, h) * 0.72);
+  const v = ctx.createRadialGradient(
+    w / 2, h / 2, Math.min(w, h) * 0.42,
+    w / 2, h / 2, Math.max(w, h) * 0.72,
+  );
   v.addColorStop(0, 'rgba(8, 3, 20, 0)');
   v.addColorStop(1, 'rgba(8, 3, 20, 0.30)');
   ctx.fillStyle = v;
@@ -139,7 +161,6 @@ export function drawTitleBlock(ctx, state, w, h, grade) {
 
   const title = (state.caption || '').trim().toUpperCase();
   const sub = (state.subtitle || '').trim();
-  const strength = state.gradeStrength;
 
   if (sub) {
     const subSize = h * 0.042;
@@ -184,7 +205,7 @@ export function drawTitleBlock(ctx, state, w, h, grade) {
   if (state.showBadge) {
     const badgeText = '★ MADE WITH NEON COAST';
     const bh = h * 0.032;
-    const by = band.y + band.h * 0.10;
+    const by = band.y + band.h * 0.1;
     ctx.save();
     ctx.font = `700 ${Math.max(9, bh * 0.42)}px system-ui, sans-serif`;
     // Size the pill to the text so the words never run past its ends.
@@ -286,13 +307,4 @@ export function drawCover(canvas, state, options = {}) {
   drawGrainAndVignette(ctx, w, h);
   drawTitleBlock(ctx, state, w, h, grade);
   return { w, h };
-}
-
-/** '#rrggbb' with an alpha channel, as an rgba() string. */
-export function hexWithAlpha(hex, alpha) {
-  const n = parseInt(hex.slice(1), 16);
-  const r = (n >> 16) & 255;
-  const g = (n >> 8) & 255;
-  const b = n & 255;
-  return `rgba(${r}, ${g}, ${b}, ${Math.max(0, Math.min(1, alpha))})`;
 }
