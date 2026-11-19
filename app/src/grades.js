@@ -1,70 +1,18 @@
-// Colour grades: a sunset or neon wash over the photos, the sky behind the
-// panels, and the colours of the title lettering. All of it original —
-// nothing taken from any game.
-export const GRADES = {
-  sunset: {
-    label: 'Vice Sunset',
-    sky: ['#1d0f38', '#7b2d8b', '#ff6b35'],
-    filter: 'saturate(1.28) contrast(1.08) brightness(1.02)',
-    washTop: '#ff9a3d',
-    washBottom: '#ff2e88',
-    washAlpha: 0.3,
-    title: ['#ffe259', '#ffa751', '#ff2e63'],
-    titleStroke: '#2b0a3d',
-    sub: '#7df9ff',
-    glow: '#ff2e88',
-  },
-  neon: {
-    label: 'Neon Nights',
-    sky: ['#0b0620', '#1b0f3b', '#3d0a5e'],
-    filter: 'saturate(1.45) contrast(1.14) brightness(1.0)',
-    washTop: '#00f5d4',
-    washBottom: '#ff2e88',
-    washAlpha: 0.4,
-    title: ['#00f5d4', '#ff2e88', '#fee440'],
-    titleStroke: '#0b0620',
-    sub: '#fee440',
-    glow: '#00f5d4',
-  },
-  gold: {
-    label: 'Golden Hour',
-    sky: ['#241505', '#7a4a12', '#e8a33d'],
-    filter: 'saturate(1.22) contrast(1.06) brightness(1.06) sepia(0.18)',
-    washTop: '#ffd166',
-    washBottom: '#ef8354',
-    washAlpha: 0.26,
-    title: ['#fff3b0', '#ffd166', '#ef8354'],
-    titleStroke: '#241505',
-    sub: '#fff3b0',
-    glow: '#ffb347',
-  },
-  teal: {
-    label: 'Miami Teal',
-    sky: ['#04263b', '#0b5563', '#ff5e78'],
-    filter: 'saturate(1.35) contrast(1.1) brightness(1.03)',
-    washTop: '#2ec4b6',
-    washBottom: '#ff5e78',
-    washAlpha: 0.3,
-    title: ['#caf0f8', '#2ec4b6', '#ff5e78'],
-    titleStroke: '#04263b',
-    sub: '#ff8fa3',
-    glow: '#2ec4b6',
-  },
-  noir: {
-    label: 'Noir Nights',
-    sky: ['#0d0d0f', '#232326', '#3d3d46'],
-    filter: 'grayscale(1) contrast(1.22) brightness(1.05)',
-    washTop: '#ffffff',
-    washBottom: '#ff2e88',
-    washAlpha: 0.16,
-    title: ['#ffffff', '#ffd6e8', '#ff2e88'],
-    titleStroke: '#0d0d0f',
-    sub: '#ff8fb8',
-    glow: '#ff2e88',
-  },
-};
+// Colour grades for Neon Coast Cover Studio.
+//
+// A grade is a two-stop gradient laid over every panel (hot colour at
+// the top of the frame melting into the second at the bottom), the
+// saturation and contrast the photo itself is drawn with, and an ink
+// colour the lettering borrows for its glow and subtitle.
 
-/** A grade by id, with the sunset grade as the fallback. */
+export const GRADES = [
+  { id: 'sunset', name: 'Sunset Melt', top: '#ff9a3d', bottom: '#ff2e88', ink: '#ffd76a', sat: 1.28, con: 1.06, lift: 0.42 },
+  { id: 'neon', name: 'Neon Nights', top: '#12e6ff', bottom: '#b537f2', ink: '#5ff2ff', sat: 1.38, con: 1.10, lift: 0.46 },
+  { id: 'golden', name: 'Golden Hour', top: '#ffe259', bottom: '#ff7b39', ink: '#ffe9a3', sat: 1.16, con: 1.03, lift: 0.38 },
+  { id: 'miami', name: 'Miami Teal', top: '#0affd1', bottom: '#0077ff', ink: '#a3ffe9', sat: 1.22, con: 1.08, lift: 0.40 },
+  { id: 'dusk', name: 'Dusk Violet', top: '#3d348b', bottom: '#f72585', ink: '#ffb3d9', sat: 1.32, con: 1.12, lift: 0.44 },
+];
+
 export function gradeById(id) {
-  return GRADES[id] ?? GRADES.sunset;
+  return GRADES.find((grade) => grade.id === id) || GRADES[0];
 }

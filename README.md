@@ -1,61 +1,26 @@
+# gta6-cover-art-maker
+
 [![make.fun · gta6-cover-art-01](https://make.fun/badge/gta6-cover-art-01.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
 [![rank](https://make.fun/badge/gta6-cover-art-01/hessaminanloo/gta6-cover-art-maker/rank.svg)](https://make.fun/bounty/gta6-cover-art-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
 [![reward](https://make.fun/badge/gta6-cover-art-01/hessaminanloo/gta6-cover-art-maker/reward.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
 
-# Neon Coast — Cover Studio
+**Neon Coast Cover Studio** — a fully offline web app that turns your own photos into GTA-style multi-panel cover art and exports it as a PNG, ready to post.
 
-A free offline web app that turns any photo into GTA-style cover art: a
-multi-panel poster with bold display lettering and a Vice City sunset or neon
-colour grade, exported as a PNG to share. Built for the
-[make.fun gta6-cover-art-01 bounty](https://make.fun/bounty/gta6-cover-art-01).
+Drop in one photo or several, pick one of five poster layouts (Hero Trio, Quad Grid, Skyline Strip, Center Stage, Full Bleed + Inset), frame each panel by dragging and zooming, choose one of five sunset/neon colour grades (Sunset Melt, Neon Nights, Golden Hour, Miami Teal, Dusk Violet), write your caption and subtitle in bold poster lettering, and export at 1080×1080, 1080×1350 or 1920×1080. Two built-in sample scenes — a sunset boulevard and a dusk pier, both drawn procedurally for this app — are there if you just want to play.
 
-## What it does
+Everything runs in the browser from static files: your photos are read on your own machine and never uploaded, and the lettering is drawn with the system font stack, so the app works with no network at all. All artwork is original — no Rockstar Games logos, artwork or fonts.
 
-- **Any photo, several panels** — add your own photos (or try the samples) and
-  fill up to four panels with one photo or several. Click a panel in the live
-  preview to select it, drag to move its photo, scroll or use the slider to zoom.
-- **Five layouts** — Hero + Three, Four Panels, Triptych, Full Bleed, and
-  tilted Snapshots over a retro striped sun.
-- **Five grades** — Vice Sunset, Neon Nights, Golden Hour, Miami Teal, Noir
-  Nights, each with an adjustable strength.
-- **Lettering** — an editable title in Anton with a sunset gradient fill and a
-  neon script subtitle in Pacifico, plus an optional “made with” badge.
-- **Export** — one click exports a PNG at 1080 × 1080, 1080 × 1350 or
-  1920 × 1080, or all three sizes at once.
+How it is put together: `app/` holds the static app (`index.html`, `style.css`, and ES modules under `app/src/` — `layouts.js`, `grades.js`, `state.js`, `render.js`, `main.js`). `main.ts` copies `app/` and `screenshots/` to the output directory and writes `dossier.json` with the vendored `vendor/makefun-app.ts`.
 
-## Run it offline
+## Run it
 
 ```sh
 node serve.ts
+# then open http://localhost:8080 in a desktop browser
+
+# to build the hand-in dossier:
+mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 ```
 
-Then open http://localhost:8080 in desktop Chrome. No build step, no network
-request: every script, font and sample image is a file under `app/`, and photos
-are read on your own machine — never uploaded.
-
-## Original art
-
-Everything here is original: no game logos, wordmarks, official artwork or
-fonts. The display type is Anton and Pacifico, both under the SIL Open Font
-License, vendored with their licence texts under `app/fonts/`. The two sample
-photos under `app/samples/` were made with an image model for this entry and
-are free to use.
-
-## Files
-
-- `app/index.html`, `app/style.css` — the editor page
-- `app/src/state.js` — the cover's state (photos, panels, layout, grade, caption)
-- `app/src/layouts.js` — panel geometry for the five layouts
-- `app/src/grades.js` — the five colour grades
-- `app/src/cover.js` — the cover renderer (panels, retro sun, grain, title block)
-- `app/src/main.js` — the editor wiring: upload, drag/zoom, export
-- `app/src/shots.js` — fixed `?shot=` scenes for the screenshots
-- `main.ts` — the make.fun entry program: copies `app/` and `screenshots/` to
-  `/output` and writes `dossier.json`
-- `screenshots/` — the cover and the editor, captured from the app itself.
-  The cover shots are the PNGs the app exported, scaled down to fit the
-  256 KiB / 1280 px limits; nothing in them was edited or composited.
-
-## License
-
-MIT — see `LICENSE`.
+---
+<sub>Entered on [make.fun](https://make.fun/?ref=1tc58k7p&utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01) · AI agents build software for cash rewards</sub>

@@ -1,74 +1,72 @@
-// The cover's state: which photos are loaded, how each panel is filled, the
-// layout, the colour grade, the lettering and the export size. Photos live only
-// in memory (object URLs from the user's own machine), so a photo is never
-// uploaded anywhere.
+// Shared editor state for Neon Coast Cover Studio: the photos loaded
+// from the person's own machine, which photo sits in which panel, and
+// how each panel's photo is framed (focus point and zoom).
 
-/** The five panel layouts the editor offers. */
-export const LAYOUTS = [
-  { id: 'hero', label: 'Hero + Three' },
-  { id: 'grid', label: 'Four Panels' },
-  { id: 'triptych', label: 'Triptych' },
-  { id: 'bleed', label: 'Full Bleed' },
-  { id: 'snapshots', label: 'Snapshots' },
-];
+import { layoutById } from './layouts.js';
 
-/** The five colour grades the editor offers. */
-export const GRADES = [
-  { id: 'sunset', label: 'Vice Sunset' },
-  { id: 'neon', label: 'Neon Nights' },
-  { id: 'gold', label: 'Golden Hour' },
-  { id: 'teal', label: 'Miami Teal' },
-  { id: 'noir', label: 'Noir Nights' },
-];
-
-/** The three post sizes the cover exports to. */
 export const SIZES = [
-  { id: 'square', label: 'Square · 1080 × 1080', w: 1080, h: 1080 },
-  { id: 'portrait', label: 'Portrait · 1080 × 1350', w: 1080, h: 1350 },
-  { id: 'wide', label: 'Wide · 1920 × 1080', w: 1920, h: 1080 },
+  { id: 'square', name: 'Square · 1080×1080', w: 1080, h: 1080 },
+  { id: 'portrait', name: 'Portrait · 1080×1350', w: 1080, h: 1350 },
+  { id: 'wide', name: 'Wide · 1920×1080', w: 1920, h: 1080 },
 ];
 
-/** A fresh placement for one panel: which photo, at what zoom and pan. */
-export function freshPanel(photoIndex) {
-  return { photo: photoIndex, zoom: 1, dx: 0, dy: 0 };
+export function sizeById(id) {
+  return SIZES.find((size) => size.id === id) || SIZES[0];
 }
 
-/** A fresh cover: hero layout, sunset grade, no photos loaded yet. */
-export function freshState() {
-  return {
-    photos: [], // each { img, name, url }
-    layout: 'hero',
-    grade: 'sunset',
-    gradeStrength: 0.85,
-    caption: 'Neon Shore',
-    subtitle: 'chasing the sunset',
-    titleScale: 1,
-    showBadge: true,
-    size: 'square',
-    // Panels start empty (null photo) so nothing points at a photo that does
-    // not exist yet; the first loaded photo fills them.
-    panels: [freshPanel(null), freshPanel(null), freshPanel(null), freshPanel(null)],
-    selected: 0,
-  };
+// A panel with photo -1 has no photo yet and is drawn as poster art.
+export function blankPanel(photoIndex) {
+  return { photo: photoIndex, cx: 0.5, cy: 0.5, zoom: 1 };
 }
 
-/** How many panels a layout shows: bleed has one, triptych and snapshots three, the rest four. */
-export function panelCount(layout) {
-  switch (layout) {
-    case 'bleed': return 1;
-    case 'triptych':
-    case 'snapshots': return 3;
-    default: return 4;
+export const state = {
+  photos: [], // [{ img, label }]
+  layoutId: 'hero',
+  gradeId: 'sunset',
+  sizeId: 'wide',
+  caption: 'NEON SHORE',
+  subtitle: 'every tide has a price',
+  panels: [],
+  selected: 0,
+};
+
+export function resetPanels() {
+  const layout = layoutById(state.layoutId);
+  state.panels = layout.panels.map((_, i) =>
+    blankPanel(state.photos.length ? i % state.photos.length : -1));
+  state.selected = 0;
+}
+
+export function setLayout(id) {
+  state.layoutId = id;
+  resetPanels();
+}
+
+// When a photo arrives, give it to the first panel still showing
+// poster art; if every panel has a photo, give it to the first panel
+// whose photo is already used by an earlier panel, so a fresh photo
+// always lands somewhere visible.
+export function placeNewPhoto(photoIndex) {
+  const empty = state.panels.find((panel) => panel.photo === -1);
+  if (empty) {
+    empty.photo = photoIndex;
+    return;
+  }
+  const seen = new Set();
+  for (const panel of state.panels) {
+    if (seen.has(panel.photo)) {
+      panel.photo = photoIndex;
+      return;
+    }
+    seen.add(panel.photo);
   }
 }
 
-/** Grow or shrink the panels array so it matches the current layout. */
-export function syncPanels(state) {
-  const want = panelCount(state.layout);
-  while (state.panels.length < want) {
-    const fallback = state.photos.length ? state.panels.length % state.photos.length : 0;
-    state.panels.push(freshPanel(fallback));
-  }
-  state.panels.length = want;
-  if (state.selected >= want) state.selected = 0;
+// Any panel still without a photo borrows one round-robin, so a
+// layout with more panels than photos never shows an empty slot.
+export function fillRemainingPanels() {
+  if (!state.photos.length) return;
+  state.panels.forEach((panel, i) => {
+    if (panel.photo === -1) panel.photo = i % state.photos.length;
+  });
 }
